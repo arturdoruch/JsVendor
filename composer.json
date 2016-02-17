@@ -1,0 +1,12 @@
+{
+    "name": "arturdoruch/js-vendor",
+    "description": "Popular JavaScript libraries in one place.",
+    "license": "MIT",
+    "keywords": ["js vendor"],
+    "authors": [
+        {
+            "name": "Artur Doruch",
+            "email": "arturdoruch@interia.pl"
+        }
+    ]
+}
