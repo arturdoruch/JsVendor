@@ -734,7 +734,7 @@ var __module7__ = (function(__dependency1__) {
       LocationInfo.call(this, locInfo);
       this.type         = "partial";
       this.partialName  = partialName;
-      this._context      = context;
+      this.context      = context;
       this.hash = hash;
       this.strip = strip;
 
@@ -1780,8 +1780,8 @@ var __module11__ = (function(__dependency1__, __dependency2__) {
         this.opcode('push', 'undefined');
       }
 
-      if (partial._context) {
-        this.accept(partial._context);
+      if (partial.context) {
+        this.accept(partial.context);
       } else {
         this.opcode('getContext', 0);
         this.opcode('pushContext');
@@ -2124,7 +2124,7 @@ var __module12__ = (function(__dependency1__, __dependency2__) {
 
       this.name = this.environment.name;
       this.isChild = !!context;
-      this._context = context || {
+      this.context = context || {
         programs: [],
         environments: []
       };
@@ -2168,7 +2168,7 @@ var __module12__ = (function(__dependency1__, __dependency2__) {
           compiler: this.compilerInfo(),
           main: fn
         };
-        var programs = this._context.programs;
+        var programs = this.context.programs;
         for (i = 0, l = programs.length; i < l; i++) {
           if (programs[i]) {
             ret[i] = programs[i];
@@ -2713,12 +2713,12 @@ var __module12__ = (function(__dependency1__, __dependency2__) {
         var index = this.matchExistingProgram(child);
 
         if (index == null) {
-          this._context.programs.push('');     // Placeholder to prevent name conflicts for nested children
-          index = this._context.programs.length;
+          this.context.programs.push('');     // Placeholder to prevent name conflicts for nested children
+          index = this.context.programs.length;
           child.index = index;
           child.name = 'program' + index;
-          this._context.programs[index] = compiler.compile(child, options, this._context, !this.precompile);
-          this._context.environments[index] = child;
+          this.context.programs[index] = compiler.compile(child, options, this.context, !this.precompile);
+          this.context.environments[index] = child;
 
           this.useDepths = this.useDepths || compiler.useDepths;
         } else {
@@ -2728,8 +2728,8 @@ var __module12__ = (function(__dependency1__, __dependency2__) {
       }
     },
     matchExistingProgram: function(child) {
-      for (var i = 0, len = this._context.environments.length; i < len; i++) {
-        var environment = this._context.environments[i];
+      for (var i = 0, len = this.context.environments.length; i < len; i++) {
+        var environment = this.context.environments[i];
         if (environment && environment.equals(child)) {
           return i;
         }

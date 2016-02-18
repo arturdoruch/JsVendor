@@ -73,7 +73,7 @@ while ( j-- ) {
 					elem.style[property]
 				);
 			},
-			init: function( elem, value ) {
+			set: function( elem, value ) {
 				// add "px" to matrices
 				/matrix\([^)p]*\)/.test(value) && (
 					value = value.replace(/matrix((?:[^,]*,){4})([^,]*),([^)]*)/, "matrix$1$2px,$3px")

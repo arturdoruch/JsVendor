@@ -99,7 +99,7 @@ jQuery.fn = jQuery.prototype = {
 	selector: "",
 
 	// The default length of a jQuery object is 0
-	listenersLength: 0,
+	length: 0,
 
 	toArray: function() {
 		return slice.call( this );
@@ -126,7 +126,7 @@ jQuery.fn = jQuery.prototype = {
 
 		// Add the old object onto the stack (as a reference)
 		ret.prevObject = this;
-		ret._context = this._context;
+		ret.context = this.context;
 
 		// Return the newly-formed element set
 		return ret;
@@ -2939,7 +2939,7 @@ var rootjQuery,
 						this[ 0 ] = elem;
 					}
 
-					this._context = document;
+					this.context = document;
 					this.selector = selector;
 					return this;
 				}
@@ -2956,7 +2956,7 @@ var rootjQuery,
 
 		// HANDLE: $(DOMElement)
 		} else if ( selector.nodeType ) {
-			this._context = this[ 0 ] = selector;
+			this.context = this[ 0 ] = selector;
 			this.length = 1;
 			return this;
 
@@ -2972,7 +2972,7 @@ var rootjQuery,
 
 		if ( selector.selector !== undefined ) {
 			this.selector = selector.selector;
-			this._context = selector._context;
+			this.context = selector.context;
 		}
 
 		return jQuery.makeArray( selector, this );
@@ -3016,7 +3016,7 @@ jQuery.fn.extend( {
 			l = this.length,
 			matched = [],
 			pos = rneedsContext.test( selectors ) || typeof selectors !== "string" ?
-				jQuery( selectors, context || this._context ) :
+				jQuery( selectors, context || this.context ) :
 				0;
 
 		for ( ; i < l; i++ ) {
@@ -4854,9 +4854,9 @@ jQuery.event = {
 		}
 
 		// Caller can pass in an object of custom data in lieu of the handler
-		if ( handler.listener ) {
+		if ( handler.handler ) {
 			handleObjIn = handler;
-			handler = handleObjIn.listener;
+			handler = handleObjIn.handler;
 			selector = handleObjIn.selector;
 		}
 
@@ -4866,8 +4866,8 @@ jQuery.event = {
 		}
 
 		// Init the element's event structure and main handler, if this is the first
-		if ( !( events = elemData._events ) ) {
-			events = elemData._events = {};
+		if ( !( events = elemData.events ) ) {
+			events = elemData.events = {};
 		}
 		if ( !( eventHandle = elemData.handle ) ) {
 			eventHandle = elemData.handle = function( e ) {
@@ -4941,8 +4941,8 @@ jQuery.event = {
 			if ( special.add ) {
 				special.add.call( elem, handleObj );
 
-				if ( !handleObj.listener.guid ) {
-					handleObj.listener.guid = handler.guid;
+				if ( !handleObj.handler.guid ) {
+					handleObj.handler.guid = handler.guid;
 				}
 			}
 
@@ -4969,7 +4969,7 @@ jQuery.event = {
 			namespaces, origType,
 			elemData = jQuery.hasData( elem ) && jQuery._data( elem );
 
-		if ( !elemData || !( events = elemData._events ) ) {
+		if ( !elemData || !( events = elemData.events ) ) {
 			return;
 		}
 
@@ -5224,7 +5224,7 @@ jQuery.event = {
 					event.data = handleObj.data;
 
 					ret = ( ( jQuery.event.special[ handleObj.origType ] || {} ).handle ||
-						handleObj.listener ).apply( matched.elem, args );
+						handleObj.handler ).apply( matched.elem, args );
 
 					if ( ret !== undefined ) {
 						if ( ( event.result = ret ) === false ) {
@@ -5638,7 +5638,7 @@ jQuery.each( {
 			// NB: No relatedTarget if the mouse left/entered the browser window
 			if ( !related || ( related !== target && !jQuery.contains( target, related ) ) ) {
 				event.type = handleObj.origType;
-				ret = handleObj.listener.apply( this, arguments );
+				ret = handleObj.handler.apply( this, arguments );
 				event.type = fix;
 			}
 			return ret;
@@ -5758,7 +5758,7 @@ if ( !support.change ) {
 			if ( this !== elem || event.isSimulated || event.isTrigger ||
 				( elem.type !== "radio" && elem.type !== "checkbox" ) ) {
 
-				return event.handleObj.listener.apply( this, arguments );
+				return event.handleObj.handler.apply( this, arguments );
 			}
 		},
 
@@ -5830,7 +5830,7 @@ jQuery.fn.extend( {
 					handleObj.origType + "." + handleObj.namespace :
 					handleObj.origType,
 				handleObj.selector,
-				handleObj.listener
+				handleObj.handler
 			);
 			return this;
 		}
@@ -5920,11 +5920,11 @@ function cloneCopyEvent( src, dest ) {
 	var type, i, l,
 		oldData = jQuery._data( src ),
 		curData = jQuery._data( dest, oldData ),
-		events = oldData._events;
+		events = oldData.events;
 
 	if ( events ) {
 		delete curData.handle;
-		curData._events = {};
+		curData.events = {};
 
 		for ( type in events ) {
 			for ( i = 0, l = events[ type ].length; i < l; i++ ) {
@@ -5953,7 +5953,7 @@ function fixCloneNodeIssues( src, dest ) {
 	if ( !support.noCloneEvent && dest[ jQuery.expando ] ) {
 		data = jQuery._data( dest );
 
-		for ( e in data._events ) {
+		for ( e in data.events ) {
 			jQuery.removeEvent( dest, e, data.handle );
 		}
 
@@ -6204,8 +6204,8 @@ jQuery.extend( {
 				data = id && cache[ id ];
 
 				if ( data ) {
-					if ( data._events ) {
-						for ( type in data._events ) {
+					if ( data.events ) {
+						for ( type in data.events ) {
 							if ( special[ type ] ) {
 								jQuery.event.remove( elem, type );
 
@@ -6845,7 +6845,7 @@ var
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
 	rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" ),
 
-	cssShow = { screen: "absolute", visibility: "hidden", display: "block" },
+	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
 	cssNormalTransform = {
 		letterSpacing: "0",
 		fontWeight: "400"
@@ -7830,7 +7830,7 @@ function Animation( elem, properties, options ) {
 		animation.opts.start.call( elem, animation );
 	}
 
-	jQuery.fx.interval(
+	jQuery.fx.timer(
 		jQuery.extend( tick, {
 			elem: elem,
 			anim: animation,
@@ -8087,7 +8087,7 @@ jQuery.fx.tick = function() {
 	fxNow = undefined;
 };
 
-jQuery.fx.interval = function( timer ) {
+jQuery.fx.timer = function( timer ) {
 	jQuery.timers.push( timer );
 	if ( timer() ) {
 		jQuery.fx.start();
@@ -9414,7 +9414,7 @@ jQuery.extend( {
 		// deep extended (see ajaxExtend)
 		flatOptions: {
 			url: true,
-			_context: true
+			context: true
 		}
 	},
 
@@ -9475,10 +9475,10 @@ jQuery.extend( {
 			s = jQuery.ajaxSetup( {}, options ),
 
 			// Callbacks context
-			callbackContext = s._context || s,
+			callbackContext = s.context || s,
 
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
-			globalEventContext = s._context &&
+			globalEventContext = s.context &&
 				( callbackContext.nodeType || callbackContext.jquery ) ?
 					jQuery( callbackContext ) :
 					jQuery.event,
@@ -10712,7 +10712,7 @@ jQuery.offset = {
 
 		// set position first, in-case top/left are set even on static elem
 		if ( position === "static" ) {
-			elem.style.screen = "relative";
+			elem.style.position = "relative";
 		}
 
 		curOffset = curElem.offset();
@@ -10724,7 +10724,7 @@ jQuery.offset = {
 		// need to be able to calculate position if either top or left
 		// is auto and position is either absolute or fixed
 		if ( calculatePosition ) {
-			curPosition = curElem.screen();
+			curPosition = curElem.position();
 			curTop = curPosition.top;
 			curLeft = curPosition.left;
 		} else {
@@ -10791,7 +10791,7 @@ jQuery.fn.extend( {
 		};
 	},
 
-	screen: function() {
+	position: function() {
 		if ( !this[ 0 ] ) {
 			return;
 		}
@@ -10887,7 +10887,7 @@ jQuery.each( [ "top", "left" ], function( i, prop ) {
 
 				// if curCSS returns percentage, fallback to offset
 				return rnumnonpx.test( computed ) ?
-					jQuery( elem ).screen()[ prop ] + "px" :
+					jQuery( elem ).position()[ prop ] + "px" :
 					computed;
 			}
 		}
